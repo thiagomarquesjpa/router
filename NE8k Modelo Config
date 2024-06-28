@@ -1,0 +1,143 @@
+——————-VIRTUAL TEMPLATE——————-
+
+interface virtual-template1
+
+mtu 1500
+
+description template bng-02-ne8000
+
+ip address unnumbered interface loopback1
+
+ppp authentication-mode pap
+
+ppp keepalive interval 30 retransmit 3 datacheck
+
+pppoe-server service-name-parameter bras-02-ne8000
+
+pppoe-server ac-name bras-02-ne8000
+
+tcp adjust-mss 1440
+
+ip urpf strict enable check subnet
+
+ipv6 urpf strict enable check subnet
+
+—————————-SUB INTERFACE————————
+
+interface eth-trunk1.1
+
+description bng
+
+ipv6 enable
+
+ipv6 address auto link-local
+
+statistic enable
+
+8021p 0
+
+user-vlan any-other
+
+arp-limit maximum 1
+
+pppoe-server bind virtual-template 1
+
+ipv6 nd autoconfig managed-address-flag
+
+ipv6 nd autoconfig other-flag
+
+bas
+
+#
+
+access-type layer2-subscriber default-domain authentication intelbras
+
+ipv6 nd ra unicast
+
+————————–ENDERAÇAMENTO WAN E LAN————–
+
+ipv6 pool pool_enlace bas local
+
+dns-server 2001:4860:4860::8888 2606:4700:4700::1111
+
+prefix prefix_enlace
+
+#
+
+ipv6 pool pool_lan bas delegation
+
+dns-server 2001:4860:4860::8888 2606:4700:4700::1111
+
+prefix prefix_lan
+
+ipv6 prefix prefix_lan delegation
+
+prefix 2804:xxxx:xxxx::/48
+
+reserved prefix mac lease
+
+#
+
+ipv6 prefix prefix_enlace local
+
+prefix 2804:xxxx:xxxx::/48
+
+————————–DOMAIN  INTELBRAS————–
+
+domain intelbras
+
+authentication-scheme default
+
+accounting-scheme acct1
+
+radius-server group radius-intelbras
+
+prefix-assign-mode unshared
+
+ip-pool pool_v4
+
+ipv6-pool pool_enlace
+
+ipv6-pool pool_lan
+
+dns primary-ip 8.8.8.8
+
+dns second-ip 1.1.1.1
+
+dns primary-ipv6 2001:4860:4860::8888
+
+dns second-ipv6 2606:4700:4700::1111
+
+nas logic-sysname bras-02-ne8000
+
+accounting-start-delay 40 online user-type ppp
+
+dhcpv6-follow-ipv6cp wait-delay infinity
+
+ipv6 nd autoconfig managed-address-flag
+
+ipv6-address assign circuit-id
+
+ipv6 nd ra link-prefix
+
+———————INTERFACE DE UPLINK COM IPV6 ENABLE————–
+
+interface eth-trunk1.4091
+
+vlan-type dot1q 4091
+
+description link-ospf
+
+ipv6 enable
+
+ip address 172.31.23.34 255.255.255.252
+
+ipv6 address 2804:1530:1::12/126
+
+ospfv3 1 area 0.0.0.0
+
+ospfv3 network-type p2p
+
+ospf network-type p2p
+
+ospf enable 1 area 0.0.0.0
